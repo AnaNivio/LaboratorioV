@@ -18,5 +18,7 @@ public class Hola {
         saludando=Boolean.FALSE;
         notifyAll();
 
+        //linea agregada
+
     }
 }
