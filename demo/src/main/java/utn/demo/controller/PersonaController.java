@@ -49,4 +49,6 @@ public class PersonaController {
     public List<VotosPorCandidato> getVotosPorCandidato(){
         return personaRepository.getVotosPorCandidato();
     }
+
+    public void test(){}
 }
