@@ -1,0 +1,5 @@
+executor:
+  corePoolSize: 100
+  maxPoolSize: 100
+  queueCapacity: 500
+
