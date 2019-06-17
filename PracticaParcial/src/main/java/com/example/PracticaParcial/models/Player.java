@@ -19,11 +19,14 @@ public class Player {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_player")
     private Integer idPlayer;
 
     @NotNull(message = "Players MUST have a name")
+    @Column(name = "name")
     private String playersName;
     @NotNull(message = "Players MUST have a surname")
+    @Column(name = "surname")
     private String playersSurname;
 
     @ManyToOne(fetch = FetchType.LAZY)
