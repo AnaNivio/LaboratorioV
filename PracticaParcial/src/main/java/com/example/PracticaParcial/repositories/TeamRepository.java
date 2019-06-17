@@ -4,18 +4,28 @@ import com.example.PracticaParcial.interfaces.TotalPlayersByTeamsName;
 import com.example.PracticaParcial.models.Team;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.config.Projection;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
+//no habia puesto el tag repository
+//cambie el nombre de las columnas antes de darme cuenta del error de arriba...no se si soluciona algun problema, pero es conveniente a la hora de escribir codigo
 
+@Repository
 public interface TeamRepository extends JpaRepository<Team,Integer> {
 
-    @Query(value ="SELECT t.teamsName,count(p.idPlayer)as cantPlayers FROM Team t INNER JOIN Player p ON p.idTeam=t.idTeam", nativeQuery=true)
+    @Query(value ="SELECT T.NAME,COUNT(P.ID_PLAYER)AS CANTPLAYERS FROM TEAM T INNER JOIN PLAYER P ON P.ID_TEAM=T.ID_TEAM GROUP BY T.NAME", nativeQuery=true)
     List<TotalPlayersByTeamsName> getTotalPlayersByTeam();
 
-    @Query(value = "SELECT t.name,count(p.idPlayer)as cantPlayers " +
-            "FROM Team t " +
-            "LEFT JOIN Player p " +
-            "ON p.id_team = t.idTeam " +
-            "WHERE t.name = ?1", nativeQuery=true)
+    @Query(value = "SELECT T.NAME,COUNT(P.ID_PLAYER)AS CANTPLAYERS " +
+                    "FROM TEAM T " +
+                    "LEFT JOIN PLAYER P " +
+                    "ON P.ID_TEAM = T.ID_TEAM " +
+                    "WHERE T.NAME = ?1 " +
+                    "GROUP BY T.NAME"
+            , nativeQuery=true)
     TotalPlayersByTeamsName getTotalPlayersByTeamsName(String team);
+
+    //no puse el group by. Uno de los errores me pedia que incroporara el campo name dentro de un group by
 }
