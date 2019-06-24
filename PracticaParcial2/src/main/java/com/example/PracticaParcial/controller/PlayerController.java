@@ -1,6 +1,7 @@
 package com.example.PracticaParcial.controller;
 
 import com.example.PracticaParcial.interfaces.PlayersMonthsInTeam;
+import com.example.PracticaParcial.models.PlayersQuantity;
 import com.example.PracticaParcial.models.Player;
 import com.example.PracticaParcial.repositories.TeamRepository;
 import com.example.PracticaParcial.service.PlayerService;
@@ -50,14 +51,6 @@ public class PlayerController {
         return foundPlayers;
     }
 
-    @GetMapping("/proyection")
-    public ResponseEntity<List<PlayersMonthsInTeam>> getMonthPlayers() {
-        CompletableFuture<List<PlayersMonthsInTeam>> result= playerService.getPlayersMonthInTeam();
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(result.join());
-    }
-
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}")
     public Player getPlayerById(@PathVariable Integer id) {
@@ -77,5 +70,25 @@ public class PlayerController {
         playerService.deletePlayers(idPlayer);
     }
 
+    @GetMapping("/proyection")
+    public ResponseEntity<List<PlayersMonthsInTeam>> getMonthPlayers() {
+        CompletableFuture<List<PlayersMonthsInTeam>> result= playerService.getPlayersMonthInTeam();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result.join());
+    }
+
+    /*Esta proyeccion lo que hace es obtener el numero total de jugadores y a eso restarle los que son mayores,
+    * dejando entonces la cantidad de jugadores que son menores de edad. Queria intentar trabajar con dos resultados
+    * de funciones asincronicas junto con proyecciones*/
+
+    @GetMapping("/ageProyection")
+    public ResponseEntity<Integer> getMinorPlayers() {
+        CompletableFuture<PlayersQuantity> result= playerService.getPlayersQuantity();
+        CompletableFuture<PlayersQuantity> result2= playerService.getPlayersOlderThan17();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result.join().getQuantity() - result2.join().getQuantity());
+    }
 
 }
