@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface TeamRepository extends JpaRepository<Team,Integer> {
 
-    @Query(value ="SELECT T.NAME,COUNT(P.ID_PLAYER)AS CANTPLAYERS FROM TEAM T INNER JOIN PLAYER P ON P.ID_TEAM=T.ID_TEAM GROUP BY T.NAME", nativeQuery=true)
+    @Query(value ="SELECT T.NAME,COUNT(P.ID_PLAYER)AS CANTPLAYERS FROM TEAM T LEFT JOIN PLAYER P ON P.ID_TEAM=T.ID_TEAM GROUP BY T.NAME", nativeQuery=true)
     List<TotalPlayersByTeamsName> getTotalPlayersByTeam();
 
     @Query(value = "SELECT T.NAME,COUNT(P.ID_PLAYER)AS CANTPLAYERS " +
