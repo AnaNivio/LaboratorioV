@@ -2,23 +2,25 @@ package com.example.PracticaParcial.controller;
 
 import com.example.PracticaParcial.interfaces.TotalPlayersByTeamsName;
 import com.example.PracticaParcial.models.Team;
-import com.example.PracticaParcial.repositories.TeamRepository;
+import com.example.PracticaParcial.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/team")
 public class TeamController {
 
     @Autowired
-    private TeamRepository teamRepository;
+    private TeamService TeamService;
 
 
     @ResponseStatus(HttpStatus.OK)
@@ -33,76 +35,56 @@ public class TeamController {
     @PostMapping("")
     public void createTeam(@RequestBody @Valid Team team){
 
-        try {
-            teamRepository.save(team);
-        } catch (DataIntegrityViolationException e) {
-            throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR,String.format("An error has occurred while the team was created"));
-        }
+        TeamService.addTeam(team);
     }
 
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/getAll") //return entity and not the DTO
     public List<Team> getAllTeams() {
-        List<Team> foundTeams = new ArrayList<>();
-
-        foundTeams=teamRepository.findAll();
-
-        if(foundTeams.isEmpty()){
-            throw  new HttpClientErrorException(HttpStatus.NO_CONTENT,String.format("There aren't any team uploaded yet"));
-        }
-        return foundTeams;
-
+       return TeamService.getTeams();
     }
 
-
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/playersQuantity/{name}")
-
-    public TotalPlayersByTeamsName getPlayerByTeamsName(@PathVariable("name") String name) {
-
-        return teamRepository.getTotalPlayersByTeamsName(name);
-
-    }
-
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/playersByTeams")
-    public List<TotalPlayersByTeamsName> getPlayerByTeam() {
-
-        return teamRepository.getTotalPlayersByTeam();
-
-    }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}")
     public Team getTeamById(@PathVariable("id") Integer id) {
-        return teamRepository.findById(id).orElseThrow(()->
-                new HttpClientErrorException(HttpStatus.BAD_REQUEST, String.format("The team with this id doesn't exist: %s",id)));
+        return TeamService.getTeamById(id);
 
     }
-    
 
-/*
-  @ResponseStatus(HttpStatus.OK)
+
+    @ResponseStatus(HttpStatus.OK)
     @PutMapping("")
     public void updateTeam(@RequestBody @Valid Team team){
-        teamRepository.findById(team.getIdTeam()).orElseThrow(()->
-                new HttpClientErrorException(HttpStatus.BAD_REQUEST, String.format("The team doesn't exist")));
-
-        teamRepository.save(team);
+        TeamService.updateTeams(team);
     }
 
-*/
 
-  /*  @ResponseStatus(HttpStatus.OK)
+
+    @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{id}")
     public void deleteTeam(@PathVariable("id") Integer idTeam){
-        Team teamFound= teamRepository.findById(idTeam).orElseThrow(()->
-                new HttpClientErrorException(HttpStatus.BAD_REQUEST, String.format("The team doesn't exist")));
+        TeamService.deleteTeams(idTeam);
 
-        teamRepository.delete(teamFound);
+    }
 
-    }*/
+  //proyections
+      @GetMapping("/playersQuantity/{name}")
 
+      public ResponseEntity<TotalPlayersByTeamsName> getPlayerByTeamsName(@PathVariable("name") String name) {
+          CompletableFuture<TotalPlayersByTeamsName> result=TeamService.getPlayerByTeamsName(name);
+          return ResponseEntity.status(HttpStatus.OK)
+          .body(result.join());
 
+      }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/playersByTeams")
+    public ResponseEntity<List<TotalPlayersByTeamsName>> getPlayerByTeam() {
+        CompletableFuture<List<TotalPlayersByTeamsName>> result=TeamService.getPlayerByTeam();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result.join());
+
+    }
 }
